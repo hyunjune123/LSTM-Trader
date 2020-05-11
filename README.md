@@ -1,5 +1,7 @@
 # Implementation of Q learning in stock markets
 
+The following research is done by Woo June Cha and professor Chad Shafer from Carnegie Mellon University.
+
 Abstract
 Many investors fail because they often don’t have the ability to appropriately time the market. In most cases, they have biased and subjective beliefs on their investments, which leads to erroneous decisions. For a more stable and profitable trade, some quantitative analysists rely on technical analysis based on historical price data. There are also various profitable algorithmic trading techniques, but even in those cases, it is up to the analysists to make the final call to buy or sell.
 
