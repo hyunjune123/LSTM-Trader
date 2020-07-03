@@ -1,3 +1,5 @@
+![maxresdefault](https://user-images.githubusercontent.com/59113962/86430444-4d02e700-bcc0-11ea-99af-09189e1ccbfd.jpg)
+
 # Implementation of Q learning in stock markets
 
 The following research is done by Woo June Cha under supervision of professor Chad Shafer from Carnegie Mellon University.
