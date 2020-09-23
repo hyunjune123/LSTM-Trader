@@ -20,15 +20,14 @@ def make_model(in_dim,l1,l2,act_size,learn):
 
 class Agent:
     def __init__(self,window,principal,batchLen):
-        if window > 30: raise Error("Invalid size of window (must be under 30)")
-        # {sit = 0, buy = (10 ~ 100%), sell = (10 ~ 100%)}
-        
+
         # input parameter
         self.stateSpace = window
+        self.principal = principal
         self.cash = principal
         self.evalCash = principal
         self.batchLen = batchLen
-        self.prev = ()
+        self.prev = None
         
         # hyper parameter
         self.g = 0.95 # discount rate
@@ -41,6 +40,14 @@ class Agent:
         # constant parameter
         self.actionSpace = 3 # {sit = 0, buy = 1, sell = 2} for now...
         self.inventory = []
+
+        # outputs
+        self.time_vec = []
+        self.action_vec = []
+        self.inven_vec = []
+        self.cash_vec = []
+        self.profit_vec = []
+        self.price_vec = []
 
 
     def act(self,state):

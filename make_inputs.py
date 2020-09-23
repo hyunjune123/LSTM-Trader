@@ -1,59 +1,123 @@
-import numpy as np
+#######################################################################
+
+"""
+Indicators as shown by Peter Bakker at:
+https://www.quantopian.com/posts/technical-analysis-indicators-without-talib-code
+"""
+
+"""
+25-Mar-2018: Fixed syntax to support the newest version of Pandas. Warnings should no longer appear.
+             Fixed some bugs regarding min_periods and NaN.
+			 If you find any bugs, please report to github.com/palmbook
+"""
+
+# Import Built-Ins
+import logging
+
+# Import Third-Party
 import pandas as pd
+import numpy as np
 
-# Helper functions
-def mvg(prices, periods=20):
-    weights = np.ones(periods) / periods
-    return np.convolve(prices, weights, mode='valid')
+# Import Homebrew
 
-def sd(prices, periods = 20):
-    for i in range(0,len(prices)):
-        if i < periods:
-            return 0
-    return 0
-
-# df = df_mem
-def make_input_line(df):
-    window = 20   # 20 period 가 가장 무난하다고 한다
-
-    # 20 줄 이상이여야함
-    assert (len(df) >= 20)
+# Init Logging Facilities
+log = logging.getLogger(__name__)
 
 
-    # Compute variables for bolinger
-    ma = df["Price"].mean()
-    typicalP = (df["High"] + df["Low"] + df["Price"])/3
-    sd = typicalP.std()
+def moving_average(df, n):
+    """Calculate the moving average for the given data.
+
+    :param df: pandas.DataFrame
+    :param n:
+    :return: pandas.DataFrame
+    """
+    MA = pd.Series(df['Close'].rolling(n, min_periods=n).mean(), name='MA_' + str(n))
+    df = df.join(MA)
+    return df
+
+def bollinger_bands(df, n):
+    """
+
+    :param df: pandas.DataFrame
+    :param n:
+    :return: pandas.DataFrame
+    """
+    MA = pd.Series(df['Close'].rolling(n, min_periods=n).mean())
+    MSD = pd.Series(df['Close'].rolling(n, min_periods=n).std())
+    b2 = (df['Close'] - MA + 2 * MSD) / (4 * MSD)
+    B2 = pd.Series(b2, name='Bollinger%b_' + str(n))
+    df = df.join(B2)
+    return df
+
+def relative_strength_index(df, n):
+    """Calculate Relative Strength Index(RSI) for given data.
+
+    :param df: pandas.DataFrame
+    :param n:
+    :return: pandas.DataFrame
+    """
+    i = 0
+    UpI = [0]
+    DoI = [0]
+    while i + 1 <= len(df)-1:
+        UpMove = df.loc[i + 1, 'High'] - df.loc[i, 'High']
+        DoMove = df.loc[i, 'Low'] - df.loc[i + 1, 'Low']
+        if UpMove > DoMove and UpMove > 0:
+            UpD = UpMove
+        else:
+            UpD = 0
+        UpI.append(UpD)
+        if DoMove > UpMove and DoMove > 0:
+            DoD = DoMove
+        else:
+            DoD = 0
+        DoI.append(DoD)
+        i = i + 1
+    UpI = pd.Series(UpI)
+    DoI = pd.Series(DoI)
+    PosDI = pd.Series(UpI.ewm(span=n, min_periods=n).mean())
+    NegDI = pd.Series(DoI.ewm(span=n, min_periods=n).mean())
+    RSI = pd.Series(PosDI / (PosDI + NegDI), name='RSI_' + str(n))
+    df = df.join(RSI)
+    return df
 
 
-    # compute variables for rsi
-    delta = (df["Price"]).diff()
-    up, down = delta.copy(), delta.copy()
-    up[up < 0] = 0
-    down[down > 0] = 0
-    rs = (up.ewm(span=14).mean()) / (down.abs().ewm(span=14).mean())  # rs based on ema
+def on_balance_volume(df, n):
+    """Calculate On-Balance Volume for given data.
 
-    # Inputs
-    time = (df["Time"]).tail(1)
-    price = (df["Price"]).tail(1)
-    bolinger = ((price - ma) / sd)
-    rsi = (100.0 - (100.0 / (1.0 + rs))).tail(1)
-    vol = (df["Volume"]).tail(1)
+    :param df: pandas.DataFrame
+    :param n:
+    :return: pandas.DataFrame
+    """
+    i = 0
+    OBV = [0]
+    while i < df.index[-1]:
+        if df.loc[i + 1, 'Close'] - df.loc[i, 'Close'] > 0:
+            OBV.append(df.loc[i + 1, 'Volume'])
+        if df.loc[i + 1, 'Close'] - df.loc[i, 'Close'] == 0:
+            OBV.append(0)
+        if df.loc[i + 1, 'Close'] - df.loc[i, 'Close'] < 0:
+            OBV.append(-df.loc[i + 1, 'Volume'])
+        i = i + 1
+    OBV = pd.Series(OBV)
+    OBV_ma = pd.Series(OBV.rolling(n, min_periods=n).mean(), name='OBV_' + str(n))
+    df = df.join(OBV_ma)
+    return df
 
-    line = pd.concat([time, price, bolinger, rsi, vol], axis = 1, sort = False)
-    line.columns = ['Time', 'Price', 'Bolinger', 'Rsi', 'Volume']
+#######################################################################
+
+# Input making functions for Q-learning
+
+def make_indicator_df(df):
+    df = bollinger_bands(df, 20)
+    df = relative_strength_index(df, 14)
+    df = on_balance_volume(df, 10)
+    return df
+
+def make_input_line(data, i, window, indicators):
+    line = np.array([])
+    for col_name in indicators:
+        current = (data[col_name][(i-window):i]).to_numpy()
+        current = current / np.linalg.norm(current)
+        line = np.concatenate((line, current))
     return line
-
-# train_line = (1 x 30)
-# colums are : [b1, b2, ..., b10, r1, r2, ..., r10, v1, v2, ..., v10]
-# 지난 10 period 동안 bolinger band index (b), Rsi (r), 거래량 (v)
-# 10 period 동안의 상대적 value를 위해 normalized
-def make_train_line(df):
-    bol = (df["Bolinger"].tail(10)).to_numpy()
-    bol = bol / np.linalg.norm(bol)
-    rsi = (df["Rsi"].tail(10)).to_numpy()
-    rsi = rsi / np.linalg.norm(rsi)
-    vol = (df["Volume"].tail(10)).to_numpy()
-    vol = vol / np.linalg.norm(vol)
-    state = np.concatenate((bol, rsi, vol))
-    return state
