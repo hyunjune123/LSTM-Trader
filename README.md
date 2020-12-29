@@ -8,7 +8,7 @@ Research project by Woo June Cha under supervision of professor Chad Shafer from
 For non-financial experts, it is difficult to determine when to enter a position in a stock market. The objective of this project is to build a machine learning model, that could estimate the price trend and identify price trend shifts. We can exploit the model output to make trade decisions that would yield profit.
 
 ## Method
-Use an LSTM binary classification model to estimate either we are at an up trend of a down trend, and take actions (enter, exit) according to trend shifts. 
+Use an LSTM binary classification model to estimate either we are at an up trend of a down trend, and take actions (enter, exit) according to trend shifts. In this project, I used S&P500 index to train the LSTM model for trend prediction and used the model to backtest on Microsoft, Apple, and Amazon stock.
 
 
 ## Result
