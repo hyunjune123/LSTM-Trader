@@ -12,6 +12,6 @@ Use an LSTM binary classification model to estimate either we are at an up trend
 
 
 ## Result
-Backtest results of Microsoft, Amazon and Apple stock on 40 different time periods over the past 16 years. 
+Backtest results of Microsoft, Amazon and Apple stock on 40 different time periods over the past 16 years. We observe that all distribution of backtest profits are heavily right skewed with positive mean (16% ~ 35%). The first quantiles of each distribution is around -1.7%, which indicates that we expect the model the yield profit greater than -1.7% 75% of the time.
 
 ![](distribution.PNG)
