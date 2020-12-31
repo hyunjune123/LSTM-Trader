@@ -2,7 +2,7 @@
 
 # LSTM Price trend estimator
 
-Research project by Woo June Cha under supervision of professor Chad Shafer from Carnegie Mellon University.\n
+Research project by Woo June Cha under supervision of professor Chad Shafer from Carnegie Mellon University. <br /> 
 View "Report.pdf" for the full project report.
 
 ## Abstract
