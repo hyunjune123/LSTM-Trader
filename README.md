@@ -1,6 +1,6 @@
 ![maxresdefault](https://user-images.githubusercontent.com/59113962/86430444-4d02e700-bcc0-11ea-99af-09189e1ccbfd.jpg)
 
-# LSTM Price trend estimator
+# LSTM Price Trend Estimator
 
 Research project by Woo June Cha under supervision of professor Chad Shafer from Carnegie Mellon University. <br /> 
 View "Report.pdf" for the full project report.
