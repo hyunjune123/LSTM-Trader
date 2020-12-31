@@ -12,6 +12,6 @@ Use an LSTM binary classification model to estimate either we are at an up trend
 
 
 ## Result
-Backtest results of Microsoft, Amazon and Apple stock on 40 different time periods. 
+Backtest results of Microsoft, Amazon and Apple stock on 40 different time periods over the past 16 years. 
 
 ![](distribution.PNG)
